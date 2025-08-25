@@ -40,9 +40,11 @@ class FaissStore:
         self._new_index()
 
     # ---------- 내부 메서드 ----------
+    # L2 정규화(오버피팅 방지위해 사용)
     def _normalize(self, vecs: np.ndarray) -> np.ndarray:
-        norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-12
-        return vecs / norms
+        x = np.ascontiguousarray(vecs, dtype=np.float32)
+        faiss.normalize_L2(x)  # 새 배열을 만들지 않고 지금 있는 배열의 값을 바꿈
+        return x
 
     def _ensure_f32(self, vecs: np.ndarray) -> np.ndarray:
         return vecs.astype("float32") if vecs.dtype != np.float32 else vecs
